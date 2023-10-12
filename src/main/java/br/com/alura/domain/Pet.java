@@ -50,4 +50,15 @@ public class Pet {
     public String getCor() {
         return cor;
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return """
+                     "id":%s,"nome":"%s","raca":"%s","tipo":"%s","idade":%s,"cor":"%s","peso":%s
+                     """.formatted(this.id, this.nome, this.raca, this.tipo, this.idade, this.cor, this.peso);
+    }
 }

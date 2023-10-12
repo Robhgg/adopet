@@ -26,17 +26,26 @@ public class PetService {
 
     public void listarPetsDoAbrigo() throws IOException, InterruptedException {
         System.out.println("Digite o id ou nome do abrigo:");
+
         String idOuNome = new Scanner(System.in).nextLine();
 
         String uri = "http://localhost:8080/abrigos/" +idOuNome +"/pets";
+
         HttpResponse<String> response = client.dispararRequisicaoGet(uri);
+
         int statusCode = response.statusCode();
         if (statusCode == 404 || statusCode == 500) {
             System.out.println("ID ou nome não cadastrado!");
+
+            return;
         }
+
         String responseBody = response.body();
+
         Pet[] pets = new ObjectMapper().readValue(responseBody, Pet[].class);
+
         List<Pet> petList = Arrays.stream(pets).toList();
+
         System.out.println("Pets cadastrados:");
         for (Pet pet : petList) {
             long id = pet.getId();
@@ -44,6 +53,7 @@ public class PetService {
             String nome = pet.getNome();
             String raca = pet.getRaca();
             int idade = pet.getIdade();
+
             System.out.println(id +" - " +tipo +" - " +nome +" - " +raca +" - " +idade +" ano(s)");
         }
     }
