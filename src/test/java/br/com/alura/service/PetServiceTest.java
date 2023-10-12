@@ -20,9 +20,12 @@ public class PetServiceTest {
 
     private final ClientHttpConfiguration client = mock(ClientHttpConfiguration.class);
 
+    @SuppressWarnings("rawtypes")
     private final HttpResponse response = mock(HttpResponse.class);
 
     private final PetService service = new PetService(client);
+
+    private final String testeSimulaImportarPetsAbrigo = "1\nsrc/test/resources/petsTest.csv";
 
     private final Pet pet = new Pet("Cachorro", "Teste", "Teste",
             10, "vermelho", 5F);
@@ -32,6 +35,7 @@ public class PetServiceTest {
         EntradaSaidaSistemUtil.restauraSaidaOriginal();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testMensagensDeveriamSerIguaisMetodolistarPetsDoAbrigo() throws IOException, InterruptedException {
         ByteArrayOutputStream boas = EntradaSaidaSistemUtil.pegaSaidaSystemOut();
@@ -57,6 +61,7 @@ public class PetServiceTest {
 
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testMensagensDeveriamSerIguaisMetodolistarPetsDoAbrigoCodigo400() throws IOException, InterruptedException {
         ByteArrayOutputStream boas = EntradaSaidaSistemUtil.pegaSaidaSystemOut();
@@ -75,11 +80,11 @@ public class PetServiceTest {
         Assertions.assertEquals("ID ou nome não cadastrado!", lines[1]);
     }
 
-    @SuppressWarnings(value = "Unchecked")
+    @SuppressWarnings("unchecked")
     @Test
-    public void testimportarPetsDoAbrigo() throws IOException, InterruptedException {
+    public void testimportarPetsDoAbrigoCodigo200() throws IOException, InterruptedException {
         ByteArrayOutputStream boas = EntradaSaidaSistemUtil.pegaSaidaSystemOut();
-        EntradaSaidaSistemUtil.simulaEntradaSystemIn("1\nsrc/test/resources/petsTest.csv");
+        EntradaSaidaSistemUtil.simulaEntradaSystemIn(testeSimulaImportarPetsAbrigo);
 
         when(client.dispararRequisicaoPost(anyString(), any())).thenReturn(response);
         when(response.statusCode()).thenReturn(200);
@@ -91,4 +96,39 @@ public class PetServiceTest {
 
         Assertions.assertEquals("Pet cadastrado com sucesso: " + pet.getNome(), lines[2]);
     }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testimportarPetsDoAbrigoCodigo400() throws IOException, InterruptedException {
+        ByteArrayOutputStream boas = EntradaSaidaSistemUtil.pegaSaidaSystemOut();
+        EntradaSaidaSistemUtil.simulaEntradaSystemIn(testeSimulaImportarPetsAbrigo);
+
+        when(client.dispararRequisicaoPost(anyString(), any())).thenReturn(response);
+        when(response.statusCode()).thenReturn(400);
+        when(response.body()).thenReturn("[{"+pet.toString()+"}]");
+
+        service.importarPetsDoAbrigo();
+
+        String[] lines = boas.toString().split(System.lineSeparator());
+
+        Assertions.assertEquals("Erro ao cadastrar o pet: " + pet.getNome(), lines[2]);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testimportarPetsDoAbrigoCodigo404() throws IOException, InterruptedException {
+        ByteArrayOutputStream boas = EntradaSaidaSistemUtil.pegaSaidaSystemOut();
+        EntradaSaidaSistemUtil.simulaEntradaSystemIn(testeSimulaImportarPetsAbrigo);
+
+        when(client.dispararRequisicaoPost(anyString(), any())).thenReturn(response);
+        when(response.statusCode()).thenReturn(404);
+        when(response.body()).thenReturn("[{"+pet.toString()+"}]");
+
+        service.importarPetsDoAbrigo();
+
+        String[] lines = boas.toString().split(System.lineSeparator());
+
+        Assertions.assertEquals("Id ou nome do abrigo não encontado!", lines[2]);
+    }
+
 }

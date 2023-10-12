@@ -3,10 +3,6 @@ package br.com.alura.service;
 import br.com.alura.client.ClientHttpConfiguration;
 import br.com.alura.domain.Pet;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -18,7 +14,7 @@ import java.util.Scanner;
 
 public class PetService {
 
-    private ClientHttpConfiguration client;
+    private final ClientHttpConfiguration client;
 
     public PetService(ClientHttpConfiguration client) {
         this.client = client;
@@ -29,7 +25,7 @@ public class PetService {
 
         String idOuNome = new Scanner(System.in).nextLine();
 
-        String uri = "http://localhost:8080/abrigos/" +idOuNome +"/pets";
+        String uri = "http://localhost:8080/abrigos/" + idOuNome + "/pets";
 
         HttpResponse<String> response = client.dispararRequisicaoGet(uri);
 
@@ -54,7 +50,7 @@ public class PetService {
             String raca = pet.getRaca();
             int idade = pet.getIdade();
 
-            System.out.println(id +" - " +tipo +" - " +nome +" - " +raca +" - " +idade +" ano(s)");
+            System.out.println(id + " - " + tipo + " - " + nome + " - " + raca + " - " + idade + " ano(s)");
         }
     }
 
@@ -70,8 +66,9 @@ public class PetService {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(nomeArquivo));
+
         } catch (IOException e) {
-            System.out.println("Erro ao carregar o arquivo: " +nomeArquivo);
+            System.out.println("Erro ao carregar o arquivo: " + nomeArquivo);
         }
 
         String line;
@@ -97,27 +94,16 @@ public class PetService {
 
             String responseBody = response.body();
 
-            /*switch(statusCode) {
+            switch (statusCode) {
                 case 200 -> System.out.println("Pet cadastrado com sucesso: " + nome);
                 case 404 -> System.out.println("Id ou nome do abrigo não encontado!");
                 case 400 -> {
                     System.out.println("Erro ao cadastrar o pet: " + nome);
                     System.out.println(responseBody);
                 }
-            }*/
-
-            if (statusCode == 200) {
-                System.out.println("Pet cadastrado com sucesso: " + nome);
-            } else if (statusCode == 404) {
-                System.out.println("Id ou nome do abrigo não encontado!");
-                break;
-            } else if (statusCode == 400 || statusCode == 500) {
-                System.out.println("Erro ao cadastrar o pet: " + nome);
-                System.out.println(responseBody);
-                break;
             }
         }
-        scanner.close();
+
         reader.close();
     }
 }
