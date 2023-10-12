@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -72,5 +73,22 @@ public class PetServiceTest {
         String[] lines = boas.toString().split(System.lineSeparator());
 
         Assertions.assertEquals("ID ou nome não cadastrado!", lines[1]);
+    }
+
+    @SuppressWarnings(value = "Unchecked")
+    @Test
+    public void testimportarPetsDoAbrigo() throws IOException, InterruptedException {
+        ByteArrayOutputStream boas = EntradaSaidaSistemUtil.pegaSaidaSystemOut();
+        EntradaSaidaSistemUtil.simulaEntradaSystemIn("1\nsrc/test/resources/petsTest.csv");
+
+        when(client.dispararRequisicaoPost(anyString(), any())).thenReturn(response);
+        when(response.statusCode()).thenReturn(200);
+        when(response.body()).thenReturn("[{"+pet.toString()+"}]");
+
+        service.importarPetsDoAbrigo();
+
+        String[] lines = boas.toString().split(System.lineSeparator());
+
+        Assertions.assertEquals("Pet cadastrado com sucesso: " + pet.getNome(), lines[2]);
     }
 }
